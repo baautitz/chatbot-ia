@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Chat com IA em C#</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #chat-container {
+            width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-window {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message {
+            display: block;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 18px;
+            max-width: 75%;
+            line-height: 1.4;
+        }
+
+        .user {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+
+        .assistant {
+            background: #e9e9eb;
+            color: black;
+            margin-right: auto;
+        }
+
+        #input-area {
+            display: flex;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        #message-input {
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            border-radius: 18px;
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        #send-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-window">
+            <div class="message assistant">
+                Olá! Eu sou uma IA rodando em um servidor C#
+                (ASP.NET). Mande uma mensagem para começar!
+            </div>
+        </div>
+        <form id="input-area">
+            <input id="message-input" placeholder="Digite sua mensagem aqui...">
+            <button id="send-button" type="submit">➤</button>
+        </form>
+    </div>
+    <script>
+        const chatWindow = document.getElementById('chat-window');
+        const inputArea = document.getElementById('input-area');
+        const messageInput = document.getElementById('message-input');
+        inputArea.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const userMessage = messageInput.value.trim();
+            if (userMessage) {
+                addMessage(userMessage, 'user');
+                messageInput.value = '';
+
+                // Envia a mensagem do usuário para a nossa API em C# no endereço '/chat'
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage }) // O C# espera um objeto com a propriedade 'Message'
+                });
+
+                const data = await response.json();
+                addMessage(data.response, 'assistant');
+            }
+        });
+        function addMessage(text, type) {
+            const messageDiv = document.createElement('div');
+
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+
+            chatWindow.appendChild(messageDiv);
+
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    </script>
+</body>
+</html>

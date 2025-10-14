@@ -1,0 +1,6 @@
+@ChatWebIA_HostAddress = http://localhost:5110
+
+GET {{ChatWebIA_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

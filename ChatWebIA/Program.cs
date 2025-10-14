@@ -6,7 +6,7 @@ using LLama;
 // Certifique-se de que a pasta 'modelos' está dentro da pasta principal do seu projeto.
 var projectDirectory = Directory.GetParent(AppContext.BaseDirectory)?.Parent?.Parent?.Parent?.FullName 
     ?? throw new DirectoryNotFoundException("Could not find project directory");
-var modelPath = Path.Combine(projectDirectory, "modelos", "Meta-Llama-3-8B-Instruct.Q4_K_M.gguf");
+var modelPath = Path.Combine(projectDirectory, "modelos", "gemma3-1b-Q8_0.gguf");
 
 // Parâmetros para carregar o modelo. GpuLayerCount = 0 significa que usaremos a CPU.
 var parameters = new ModelParams(modelPath) {
@@ -34,14 +34,14 @@ app.UseStaticFiles();
 app.MapPost("/chat", async (ChatRequest request) => {
     Console.WriteLine($"Recebida a mensagem: {request.Message}");
 
-    // Prepara o prompt para a IA no formato do Llama 3
+    // Prepara o prompt para a IA no formato do Gemma 3
     var prompt =
-    $"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{request.Message}<|eot_id|><|start_header_id |> assistant <| end_header_id |>\n\n";
+    $"<start_of_turn>user\n{request.Message}<end_of_turn>\n<start_of_turn>model\n";
     string responseText = "";
 
     // Pede para a IA gerar uma resposta, token por token
     await foreach (var text in executor.InferAsync(prompt, new InferenceParams() {
-        AntiPrompts = ["<|eot_id|>"]
+        AntiPrompts = ["<end_of_turn>"]
     })) {
         responseText += text;
     }
